@@ -16,25 +16,19 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * Copyright (c) 2025 Axel Howind
  */
-import org.jspecify.annotations.NullMarked;
+package com.dua3.app.keystoremanager;
 
-@NullMarked
-open module keystoremanager {
-    exports com.dua3.app.keystoremanager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-    requires atlantafx.base;
-    requires com.dua3.utility;
-    requires com.dua3.utility.fx;
-    requires com.dua3.utility.fx.controls;
-    requires com.dua3.utility.logging;
-    requires org.apache.logging.log4j;
-    requires java.desktop;
-    requires java.logging;
-    requires java.prefs;
-    requires javafx.graphics;
-    requires javafx.controls;
-    requires org.bouncycastle.provider;
-    requires org.bouncycastle.pkix;
-    requires org.jspecify;
-    requires javafx.base;
+/**
+ * A utility class that provides helper methods for working with KeyStores.
+ * This class cannot be instantiated.
+ */
+public final class Util {
+    private static final Logger LOG = LogManager.getLogger(Util.class);
+
+    private Util() {}
+
+
 }

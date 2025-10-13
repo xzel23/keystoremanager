@@ -1,6 +1,20 @@
 // Copyright (c) 2025 Axel Howind
 //
-// This software is released under the Apache Software License Version 2.
+// This file is part of Keystore Manager.
+//
+// Keystore Manager is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3 as published
+// by the Free Software Foundation.
+//
+// Keystore Manager is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Keystore Manager. If not, see <https://www.gnu.org/licenses/>.
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 import com.adarshr.gradle.testlogger.theme.ThemeType
 import com.dua3.cabe.processor.Configuration
@@ -24,8 +38,8 @@ object Meta {
     const val GROUP = "com.dua3.app.keystoremanager"
     const val SCM = "https://github.com/xzel23/keystoremnager.git"
     const val REPO = "public"
-    const val LICENSE_NAME = "ASL-2"
-    const val LICENSE_URL = ""
+    const val LICENSE_NAME = "GPL-3.0-only"
+    const val LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.txt"
     const val DEVELOPER_ID = "axh"
     const val DEVELOPER_NAME = "Axel Howind"
     const val DEVELOPER_EMAIL = "axh@dua3.com"
@@ -43,9 +57,14 @@ dependencies {
     implementation(rootProject.libs.dua3.utility.fx)
     implementation(rootProject.libs.dua3.utility.fx.controls)
     implementation(rootProject.libs.bouncycastle.provider)
+    implementation(rootProject.libs.bouncycastle.pkix)
 
-    runtimeOnly(rootProject.libs.bouncycastle.pkix)
     runtimeOnly(rootProject.libs.log4j.core)
+
+    testImplementation(platform(rootProject.libs.junit.bom))
+    testImplementation(rootProject.libs.junit.jupiter.api)
+    testRuntimeOnly(rootProject.libs.junit.platform.launcher)
+    testRuntimeOnly(rootProject.libs.junit.jupiter.engine)
 }
 
 tasks.register("printStartMessage") {
@@ -102,7 +121,6 @@ java {
 
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(javaRuntimeVersion))
-        vendor.set(JvmVendorSpec.BELLSOFT)
     }
 }
 
@@ -193,7 +211,6 @@ fun JavaExec.useToolchain() {
     // Use the Gradle toolchain configuration
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(javaRuntimeVersion))
-        vendor.set(JvmVendorSpec.BELLSOFT)
     })
 }
 

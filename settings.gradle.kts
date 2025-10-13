@@ -2,10 +2,22 @@ import org.gradle.internal.extensions.stdlib.toDefaultLowerCase
 
 rootProject.name = "keystoremanager"
 
-/*
- * Copyright (c) 2025. Axel Howind (axel@dua3.com)
- * This package is distributed under the Artistic License 2.0.
- */
+// This file is part of Keystore Manager.
+//
+// Keystore Manager is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3 as published
+// by the Free Software Foundation.
+//
+// Keystore Manager is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Keystore Manager. If not, see <https://www.gnu.org/licenses/>.
+//
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (c) 2025 Axel Howind (axel@dua3.com)
 
 val projectVersion = "0.0.1-SNAPSHOT"
 
@@ -21,30 +33,26 @@ dependencyResolutionManagement {
             plugin("jlink", "org.beryx.jlink").version("3.1.3")
             plugin("versions", "com.github.ben-manes.versions").version("0.53.0")
             plugin("test-logger", "com.adarshr.test-logger").version("4.0.0")
-            plugin("spotbugs", "com.github.spotbugs").version("6.4.2")
+            plugin("spotbugs", "com.github.spotbugs").version("6.4.7")
             plugin("cabe", "com.dua3.cabe").version("3.3.0")
             plugin("forbiddenapis", "de.thetaphi.forbiddenapis").version("3.10")
 
-            version("bouncycastle", "1.82")
-            version("dua3-api", "0.1-beta6-SNAPSHOT")
-            version("dua3-doc", "2.8.0-beta13-SNAPSHOT")
-            version("dua3-fx", "1.5.0-beta14-SNAPSHOT")
-            version("dua3-license", "0.1.0-beta15-SANPSHOT")
-            version("dua3-utility", "20.0.0-beta26-SNAPSHOT")
+            version("bouncycastle", "1.83")
+            version("dua3-utility", "20.0.3")
             version("ikonli", "12.4.0")
-            version("jackson", "2.20.0")
+            version("jackson", "2.20.1")
             version("jspecify", "1.0.0")
-            version("junit-bom", "5.13.4")
+            version("junit-bom", "6.0.1")
             version("log4j-bom", "2.25.2")
-            version("meja", "9.0.0-beta11")
+            version("meja", "9.0.0-rc")
             version("miglayout", "11.4.2")
-            version("poi", "5.4.1")
+            version("poi", "5.5.0")
             version("slf4j", "2.0.17")
-            version("record-builder", "49")
+            version("record-builder", "51")
             version("commons-compress", "1.28.0")
             version("commons-logging", "1.3.1")
             version("atlantafx", "2.1.0")
-            version("spotbugs", "4.9.6")
+            version("spotbugs", "4.9.8")
 
             library("atlantafx", "io.github.mkpaz", "atlantafx-base").versionRef("atlantafx")
 
@@ -61,11 +69,6 @@ dependencyResolutionManagement {
                 "io.soabase.record-builder",
                 "record-builder-processor"
             ).versionRef("record-builder")
-            library("dua3-api-client", "com.dua3.api", "api-client").versionRef("dua3-api")
-            library("dua3-doc-core", "com.dua3.doc", "doc-core").versionRef("dua3-doc")
-            library("dua3-doc-algorithm", "com.dua3.doc", "doc-algorithm").versionRef("dua3-doc")
-            library("dua3-doc-pdf", "com.dua3.doc", "doc-pdf").versionRef("dua3-doc")
-            library("dua3-license", "com.dua3.license", "license").versionRef("dua3-license")
             library("dua3-utility-bom", "com.dua3.utility", "utility-bom").versionRef("dua3-utility")
             library("dua3-utility", "com.dua3.utility", "utility").withoutVersion()
             library("dua3-utility-db", "com.dua3.utility", "utility-db").withoutVersion()
@@ -78,8 +81,6 @@ dependencyResolutionManagement {
             library("dua3-utility-fx-icons", "com.dua3.utility", "utility-fx-icons").withoutVersion()
             library("dua3-utility-fx-icons-ikonli", "com.dua3.utility", "utility-fx-icons-ikonli").withoutVersion()
             library("dua3-utility-fx-web", "com.dua3.utility", "utility-fx-web").withoutVersion()
-            library("dua3-fx-application", "com.dua3.fx", "fx-application").versionRef("dua3-fx")
-            library("dua3-fx-application-fxml", "com.dua3.fx", "fx-application-fxml").versionRef("dua3-fx")
             library("meja", "com.dua3.meja", "meja-core").versionRef("meja")
             library("meja-generic", "com.dua3.meja", "meja-generic").versionRef("meja")
             library("meja-poi", "com.dua3.meja", "meja-poi").versionRef("meja")
@@ -116,6 +117,8 @@ dependencyResolutionManagement {
 
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+
+        mavenLocal()
 
         // Repsy releases (for private dependencies)
         maven {
