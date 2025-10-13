@@ -1,0 +1,291 @@
+// Copyright (c) 2025 Axel Howind
+//
+// This software is released under the Apache Software License Version 2.
+
+import com.adarshr.gradle.testlogger.theme.ThemeType
+import com.dua3.cabe.processor.Configuration
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.gradle.internal.extensions.stdlib.toDefaultLowerCase
+
+plugins {
+    id("java")
+    id("signing")
+    id("idea")
+    id("application")
+    alias(libs.plugins.versions)
+    alias(libs.plugins.test.logger)
+    alias(libs.plugins.spotbugs)
+    alias(libs.plugins.cabe)
+    alias(libs.plugins.forbiddenapis)
+}
+
+/////////////////////////////////////////////////////////////////////////////
+object Meta {
+    const val GROUP = "com.dua3.app.keystoremanager"
+    const val SCM = "https://github.com/xzel23/keystoremnager.git"
+    const val REPO = "public"
+    const val LICENSE_NAME = "ASL-2"
+    const val LICENSE_URL = ""
+    const val DEVELOPER_ID = "axh"
+    const val DEVELOPER_NAME = "Axel Howind"
+    const val DEVELOPER_EMAIL = "axh@dua3.com"
+    const val ORGANIZATION_NAME = "dua3"
+    const val ORGANIZATION_URL = "https://www.dua3.com"
+}
+/////////////////////////////////////////////////////////////////////////////
+
+application {
+    mainClass = "com.dua3.app.keystoremanager.Main"
+}
+
+dependencies {
+    implementation(rootProject.libs.dua3.utility)
+    implementation(rootProject.libs.dua3.utility.fx)
+    implementation(rootProject.libs.dua3.utility.fx.controls)
+    implementation(rootProject.libs.bouncycastle.provider)
+
+    runtimeOnly(rootProject.libs.bouncycastle.pkix)
+    runtimeOnly(rootProject.libs.log4j.core)
+}
+
+tasks.register("printStartMessage") {
+    doFirst {
+        println("NOTE: A JDK with prepackaged JavaFX (i.e., Azul Zulu 'JDK FX' or Bellsoft 'Full JDK') or a properly configured local JavaFX installation is needed!")
+    }
+}
+
+tasks.named("build") {
+    dependsOn(tasks.named("printStartMessage"))
+}
+
+// make sure snapshot versions are not cached
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor(1, TimeUnit.SECONDS)
+    }
+}
+
+// --- configure all project ----
+project.version = rootProject.libs.versions.projectVersion.get()
+
+fun isDevelopmentVersion(versionString: String): Boolean {
+    val v = versionString.toDefaultLowerCase()
+    val markers = listOf("snapshot", "alpha", "beta")
+    for (marker in markers) {
+        if (v.contains("-$marker") || v.contains(".$marker")) {
+            return true
+        }
+    }
+    return false
+}
+
+val isReleaseVersion = !isDevelopmentVersion(project.version.toString())
+val isSnapshot = project.version.toString().toDefaultLowerCase().contains("snapshot")
+
+apply(plugin = "java")
+apply(plugin = "signing")
+apply(plugin = "idea")
+apply(plugin = "com.github.ben-manes.versions")
+apply(plugin = "com.adarshr.test-logger")
+apply(plugin = "com.github.spotbugs")
+apply(plugin = "com.dua3.cabe")
+apply(plugin = "de.thetaphi.forbiddenapis")
+
+val javaVersion = JavaVersion.VERSION_25
+val javaRuntimeVersion = "25"
+
+java {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    withSourcesJar()
+
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(javaRuntimeVersion))
+        vendor.set(JvmVendorSpec.BELLSOFT)
+    }
+}
+
+cabe {
+    if (isReleaseVersion) {
+        config.set(Configuration.parse("publicApi=THROW_IAE:privateApi=ASSERT"))
+    } else {
+        config.set(Configuration.DEVELOPMENT)
+    }
+}
+
+dependencies {
+    // JSpecify (source annotations)
+    implementation(rootProject.libs.jspecify)
+
+    // AtlantaFX
+    implementation(rootProject.libs.atlantafx)
+
+    // LOG4J
+    implementation(platform(rootProject.libs.log4j.bom))
+    implementation(rootProject.libs.log4j.api)
+
+    // dua3 utility
+    implementation(platform(rootProject.libs.dua3.utility.bom))
+    implementation(rootProject.libs.dua3.utility)
+    implementation(rootProject.libs.dua3.utility.logging.log4j)
+    implementation(rootProject.libs.dua3.utility.fx)
+
+    runtimeOnly(rootProject.libs.log4j.core)
+
+    // JUnit
+    testImplementation(platform(rootProject.libs.junit.bom))
+    testImplementation(rootProject.libs.junit.jupiter.api)
+    testRuntimeOnly(rootProject.libs.junit.platform.launcher)
+    testRuntimeOnly(rootProject.libs.junit.jupiter.engine)
+}
+
+idea {
+    module {
+        inheritOutputDirs = false
+        outputDir = project.layout.buildDirectory.file("classes/java/main/").get().asFile
+        testOutputDir = project.layout.buildDirectory.file("classes/java/test/").get().asFile
+    }
+}
+
+testing {
+    suites {
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+
+            dependencies {
+                implementation(rootProject.libs.log4j.core)
+            }
+
+            targets {
+                all {
+                    testTask {
+                        // enable assertions and use headless mode for AWT in unit tests
+                        jvmArgs("-ea", "-Djava.awt.headless=true")
+                    }
+                }
+            }
+        }
+    }
+}
+
+testlogger {
+    theme = ThemeType.MOCHA_PARALLEL
+}
+
+tasks.compileJava {
+    options.encoding = "UTF-8"
+    options.compilerArgs.addAll(listOf("-Xlint:deprecation", "-Xlint:-module"))
+    options.javaModuleVersion.set(provider { project.version as String })
+    options.release.set(java.targetCompatibility.majorVersion.toInt())
+}
+tasks.compileTestJava {
+    options.encoding = "UTF-8"
+}
+tasks.javadoc {
+    (options as StandardJavadocDocletOptions).apply {
+        encoding = "UTF-8"
+        addStringOption("Xdoclint:all,-missing/private")
+    }
+}
+
+fun JavaExec.useToolchain() {
+    // Use the Gradle toolchain configuration
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(javaRuntimeVersion))
+        vendor.set(JvmVendorSpec.BELLSOFT)
+    })
+}
+
+tasks.withType<JavaExec>().configureEach {
+    useToolchain()
+}
+
+// === verify JavaFX is available
+tasks.register("verifyJavaFxSetup") {
+    group = "verification"
+    description = "Verifies that JavaFX is set up correctly."
+
+    doLast {
+        try {
+            Class.forName("javafx.application.Application")
+            println("JavaFX is correctly set up.")
+        } catch (e: ClassNotFoundException) {
+            throw GradleException("JavaFX is not set up correctly. Please ensure JavaFX is installed and available in your runtime environment.")
+        }
+    }
+}
+
+tasks.withType<JavaExec> {
+    dependsOn("verifyJavaFxSetup")
+}
+
+// === TESTDATA DOWNLOAD ===
+val testDataFiles = listOf(
+    mapOf(
+        "url" to "https://github.com/progit/progit2/releases/download/2.1.412/progit.pdf",
+        "file" to "${rootDir}/testData/A/progit-2.1.412.pdf"
+    ),
+    mapOf(
+        "url" to "https://github.com/progit/progit2/releases/download/2.1.438/progit.pdf",
+        "file" to "${rootDir}/testData/B/progit-2.1.438.pdf"
+    ),
+    mapOf(
+        "url" to "https://math.hws.edu/eck/cs424/downloads/graphicsbook-1.0.1.pdf",
+        "file" to "${rootDir}/testData/A/graphicsbook-1.0.1.pdf"
+    ),
+    mapOf(
+        "url" to "https://math.hws.edu/eck/cs424/downloads/graphicsbook-1.3.1.pdf",
+        "file" to "${rootDir}/testData/B/graphicsbook-1.3.1.pdf"
+    ),
+    mapOf(
+        "url" to "https://docs.oracle.com/javase/specs/jls/se17/jls17.pdf",
+        "file" to "${rootDir}/testData/A/The Java Language Specification-Java SE 17 Edition.pdf"
+    ),
+    mapOf(
+        "url" to "https://docs.oracle.com/javase/specs/jls/se21/jls21.pdf",
+        "file" to "${rootDir}/testData/B/The Java Language Specification-Java SE 21 Edition.pdf"
+    ),
+)
+
+// === FORBIDDEN APIS ===
+tasks.withType(de.thetaphi.forbiddenapis.gradle.CheckForbiddenApis::class).configureEach {
+    enabled = false // XXX plugin does not yet support Java 25
+    bundledSignatures = setOf("jdk-internal", "jdk-deprecated")
+    ignoreFailures = false
+}
+
+// === SPOTBUGS ===
+spotbugs.toolVersion.set(rootProject.libs.versions.spotbugs)
+spotbugs.excludeFilter.set(rootProject.file("spotbugs-exclude.xml"))
+
+tasks.withType<com.github.spotbugs.snom.SpotBugsTask>() {
+    enabled = false
+    reports.create("html") {
+        required.set(true)
+        outputLocation = project.layout.buildDirectory.file("reports/spotbugs.html").get().asFile
+        setStylesheet("fancy-hist.xsl")
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Versions plugin configuration for all projects
+/////////////////////////////////////////////////////////////////////////////
+
+fun isStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "[0-9,.v-]+-(rc|ea|alpha|beta|b|M|SNAPSHOT)([+-]?[0-9]*)?".toRegex()
+    return stableKeyword || !regex.matches(version)
+}
+
+tasks.withType<DependencyUpdatesTask> {
+    // refuse non-stable versions
+    rejectVersionIf {
+        !isStable(candidate.version)
+    }
+
+    // dependencyUpdates fails in parallel mode with Gradle 9+ (https://github.com/ben-manes/gradle-versions-plugin/issues/968)
+    doFirst {
+        gradle.startParameter.isParallelProjectExecutionEnabled = false
+    }
+}
