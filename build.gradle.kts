@@ -63,7 +63,7 @@ jlink {
         "--strip-debug",
         "--no-header-files",
         "--no-man-pages",
-        "--compress=2",
+        "--compress=zip-9",
         // required because some dependencies (e.g., BouncyCastle PKIX) ship as signed modular JARs
         "--ignore-signing-information"
     )
@@ -90,6 +90,19 @@ jlink {
         jvmArgs = listOf("-Dprism.allowhidpi=true")
 
         // Users can pass platform-specific options on the command line
+
+        // Use platform-appropriate icon from the data/ folder at project root
+        val os = org.gradle.internal.os.OperatingSystem.current()
+        val iconFile = when {
+            os.isMacOsX -> project.file("data/logo.icns")
+            os.isWindows -> project.file("data/logo.ico")
+            else -> null // Linux typically accepts PNG; keep default if none provided in data/
+        }
+        if (iconFile != null && iconFile.exists()) {
+            // Set icon for the app image and for the installer, when created
+            imageOptions.addAll(listOf("--icon", iconFile.absolutePath))
+            installerOptions.addAll(listOf("--icon", iconFile.absolutePath))
+        }
     }
 }
 
