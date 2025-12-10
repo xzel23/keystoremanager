@@ -26,6 +26,7 @@ plugins {
     id("signing")
     id("idea")
     id("application")
+    id("org.beryx.jlink") version "3.1.5"
     alias(libs.plugins.versions)
     alias(libs.plugins.test.logger)
     alias(libs.plugins.spotbugs)
@@ -50,6 +51,46 @@ object Meta {
 
 application {
     mainClass = "com.dua3.app.keystoremanager.Main"
+}
+
+// Configure Badass JLink to create a custom runtime image and jpackaged app
+jlink {
+    // Module name is inferred from module-info.java (open module keystoremanager)
+    imageName.set("KeystoreManager")
+
+    // Keep image reasonably small
+    addOptions(
+        "--strip-debug",
+        "--no-header-files",
+        "--no-man-pages",
+        "--compress=2",
+        // required because some dependencies (e.g., BouncyCastle PKIX) ship as signed modular JARs
+        "--ignore-signing-information"
+    )
+
+    launcher {
+        name = "keystoremanager"
+        // mainClass is taken from the application plugin; set explicitly for clarity
+        mainClass.set("com.dua3.app.keystoremanager.Main")
+        jvmArgs = listOf("-Dprism.allowhidpi=true")
+    }
+
+    // jpackage configuration for native bundles and app image
+    jpackage {
+        // Use a clean, OS-agnostic default; users may override with -PinstallerType=<dmg|pkg|msi|exe|deb|rpm>
+        vendor = "dua3"
+        // jpackage requires a numeric version; strip qualifiers
+        val ver = (project.version as String).replace(Regex("[-.](SNAPSHOT|ALPHA|BETA|RC).*", RegexOption.IGNORE_CASE), "")
+        appVersion = if (ver.isNotBlank()) ver else "0.0.0"
+
+        // Always produce an app image; installers are optional depending on OS/flags
+        imageName = "KeystoreManager"
+
+        // Common runtime options
+        jvmArgs = listOf("-Dprism.allowhidpi=true")
+
+        // Users can pass platform-specific options on the command line
+    }
 }
 
 dependencies {
@@ -276,13 +317,9 @@ tasks.withType(de.thetaphi.forbiddenapis.gradle.CheckForbiddenApis::class).confi
 spotbugs.toolVersion.set(rootProject.libs.versions.spotbugs)
 spotbugs.excludeFilter.set(rootProject.file("spotbugs-exclude.xml"))
 
-tasks.withType<com.github.spotbugs.snom.SpotBugsTask>() {
+tasks.withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
+    // SpotBugs is disabled for now (Java 25 / plugin support)
     enabled = false
-    reports.create("html") {
-        required.set(true)
-        outputLocation = project.layout.buildDirectory.file("reports/spotbugs.html").get().asFile
-        setStylesheet("fancy-hist.xsl")
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
