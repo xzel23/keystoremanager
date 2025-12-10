@@ -61,13 +61,13 @@ public final class ExportDialogs {
         // Add a table showing the entries to let the user select what to export
         KeyStoreExportSelctionInput keyStoreExportSelectionInput = new KeyStoreExportSelctionInput(keystore);
 
-        builder.page(ITEMS_TO_EXPORT, Dialogs.inputPane()
+        builder.page(ITEMS_TO_EXPORT, Dialogs.inputDialogPane()
                 .header("WARNING: Do not export sensitive keys or certificates unless you know exactly what you are doing!")
                 .addInput(SELECTED_ALIASES, Map.class, FXCollections::observableHashMap, keyStoreExportSelectionInput)
         );
 
         // where to write the keystore to
-        builder.page(KEYSTORE_SETTINGS, Dialogs.inputPane()
+        builder.page(KEYSTORE_SETTINGS, Dialogs.inputDialogPane()
                 .header("Select where to store the new keystore and provide a password for it.")
                 .inputComboBox(ID_KEYSTORE_TYPE, "Type", () -> KeyStoreType.PKCS12, KeyStoreType.class, List.of(KeyStoreType.values()))
                 .inputFolder(ID_KEYSTORE_FOLDER, "Target Folder", keystore.path()::getParent, true)
