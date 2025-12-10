@@ -26,7 +26,7 @@ plugins {
     id("signing")
     id("idea")
     id("application")
-    id("org.beryx.jlink") version "3.1.5"
+    alias(libs.plugins.jlink)
     alias(libs.plugins.versions)
     alias(libs.plugins.test.logger)
     alias(libs.plugins.spotbugs)
