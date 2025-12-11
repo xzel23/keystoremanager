@@ -96,9 +96,9 @@ jlink {
         val iconFile = when {
             os.isMacOsX -> project.file("data/logo.icns")
             os.isWindows -> project.file("data/logo.ico")
-            else -> null // Linux typically accepts PNG; keep default if none provided in data/
+            else -> project.file("data/logo.png") // use PNG
         }
-        if (iconFile != null && iconFile.exists()) {
+        if (iconFile.exists()) {
             // Set icon for the app image and for the installer, when created
             imageOptions.addAll(listOf("--icon", iconFile.absolutePath))
             installerOptions.addAll(listOf("--icon", iconFile.absolutePath))
