@@ -1,0 +1,97 @@
+name: Build (Windows, Linux, macOS ARM) and Release Installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            installerType: deb
+            artifactSuffix: linux
+          - os: windows-latest
+            installerType: exe
+            artifactSuffix: windows
+          - os: macos-14
+            installerType: dmg
+            artifactSuffix: macos-arm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Liberica JDK 25 (with JavaFX)
+        uses: actions/setup-java@v4
+        with:
+          distribution: liberica
+          java-version: '25'
+          java-package: jdk+fx
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Show Java/Gradle versions
+        run: |
+          java -version
+          ./gradlew --version
+
+      - name: Build
+        run: ./gradlew --no-daemon --stacktrace build
+
+      - name: Create installer with jpackage
+        run: ./gradlew --no-daemon --stacktrace jpackage -PinstallerType=${{ matrix.installerType }}
+
+      - name: Collect installer artifacts
+        id: collect
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          shopt -s nullglob
+          # Look for common installer extensions in build/jpackage
+          for f in build/jpackage/*.{dmg,pkg,msi,exe,deb,rpm}; do
+            [ -e "$f" ] || continue
+            cp -v "$f" artifacts/
+          done
+          echo "COUNT=$(ls -1 artifacts | wc -l | tr -d ' ')" >> $GITHUB_OUTPUT
+
+      - name: Upload installer artifacts
+        if: steps.collect.outputs.COUNT != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystoremanager-installers-${{ matrix.artifactSuffix }}
+          path: artifacts/*
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub Release with Installers
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all installer artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Display downloaded files
+        run: |
+          ls -R release-artifacts || true
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-artifacts/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
