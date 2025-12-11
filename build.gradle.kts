@@ -103,6 +103,43 @@ jlink {
             imageOptions.addAll(listOf("--icon", iconFile.absolutePath))
             installerOptions.addAll(listOf("--icon", iconFile.absolutePath))
         }
+
+        // Conditional code signing options supplied via -P properties (CI only)
+        // macOS signing
+        val macSign = (project.findProperty("mac.sign") as String?)?.toBoolean() == true
+        if (macSign) {
+            val identity = (project.findProperty("mac.identity") as String?)?.trim().orEmpty()
+            if (identity.isNotEmpty()) {
+                installerOptions.addAll(listOf("--mac-sign"))
+                installerOptions.addAll(listOf("--mac-signing-key-user-name", identity))
+                val keychain = (project.findProperty("mac.keychain") as String?)?.trim()
+                if (!keychain.isNullOrEmpty()) {
+                    installerOptions.addAll(listOf("--mac-signing-keychain", keychain))
+                }
+            }
+        }
+
+        // Windows signing
+        val winSign = (project.findProperty("win.sign") as String?)?.toBoolean() == true
+        if (winSign) {
+            val ks = (project.findProperty("win.keystore") as String?)?.trim().orEmpty()
+            val ksp = (project.findProperty("win.storepass") as String?)?.trim().orEmpty()
+            val alias = (project.findProperty("win.alias") as String?)?.trim().orEmpty()
+            if (ks.isNotEmpty() && ksp.isNotEmpty() && alias.isNotEmpty()) {
+                installerOptions.addAll(listOf(
+                    "--win-sign",
+                    "--win-signing-key-store", ks,
+                    "--win-signing-key-store-pass", ksp,
+                    "--win-signing-key-store-type", "pkcs12",
+                    "--win-signing-key-alias", alias
+                ))
+                val signOpts = (project.findProperty("win.signingOptions") as String?)?.trim()
+                if (!signOpts.isNullOrEmpty()) {
+                    // pass additional options to the signtool invocation (e.g. timestamp server)
+                    installerOptions.addAll(listOf("--win-signing-options", signOpts))
+                }
+            }
+        }
     }
 }
 
