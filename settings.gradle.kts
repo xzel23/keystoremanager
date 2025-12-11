@@ -19,7 +19,7 @@ rootProject.name = "keystoremanager"
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (c) 2025 Axel Howind (axel@dua3.com)
 
-val projectVersion = "0.0.1-SNAPSHOT"
+val projectVersion = "0.1.0"
 
 dependencyResolutionManagement {
 
