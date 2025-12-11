@@ -23,7 +23,6 @@ val projectVersion = "0.0.1-SNAPSHOT"
 
 dependencyResolutionManagement {
 
-    val isSnapshot = projectVersion.toDefaultLowerCase().contains("-snapshot")
     val isReleaseCandidate = projectVersion.toDefaultLowerCase().contains("-rc")
 
     versionCatalogs {
@@ -79,80 +78,8 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
 
-        mavenLocal()
-
-        // Repsy releases (for private dependencies)
-        maven {
-            val repsy_user: String by settings
-            val repsy_password: String by settings
-
-            credentials {
-                username = repsy_user
-                password = repsy_password
-            }
-
-            name = "dua3"
-            url = uri("https://repo.repsy.io/mvn/dua3/dua3")
-        }
-
         // Maven Central Repository
         mavenCentral()
-
-        // Sonatype Releases
-        maven {
-            name = "central.sonatype.com-releases"
-            url = java.net.URI("https://central.sonatype.com/content/repositories/releases/")
-            mavenContent {
-                releasesOnly()
-            }
-        }
-
-        // Apache releases
-        maven {
-            name = "apache-releases"
-            url = java.net.URI("https://repository.apache.org/content/repositories/releases/")
-            mavenContent {
-                releasesOnly()
-            }
-        }
-
-        if (isSnapshot) {
-            println("snapshot version detected, adding Maven snapshot repositories")
-
-            mavenLocal()
-
-            // Repsy snapshots (for private dependencies)
-            maven {
-                val repsy_user: String by settings
-                val repsy_password: String by settings
-
-                credentials {
-                    username = repsy_user
-                    password = repsy_password
-                }
-
-                name = "dua3"
-                url = uri("https://repo.repsy.io/mvn/dua3/dua3-snapshot")
-            }
-
-            // Sonatype Snapshots
-            maven {
-                name = "Central Portal Snapshots"
-                url = java.net.URI("https://central.sonatype.com/repository/maven-snapshots/")
-                mavenContent {
-                    snapshotsOnly()
-                }
-            }
-
-            // Apache snapshots
-            maven {
-                name = "apache-snapshots"
-                url = java.net.URI("https://repository.apache.org/content/repositories/snapshots/")
-                mavenContent {
-                    snapshotsOnly()
-                }
-            }
-        }
 
         if (isReleaseCandidate) {
             println("release candidate version detected, adding Maven staging repositories")
