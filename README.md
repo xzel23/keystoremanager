@@ -20,10 +20,7 @@ Features
 
 Requirements
 ------------
-- JDK 25 (the Gradle toolchain targets Java 25)
-- JavaFX at runtime
-  - Either use a JDK distribution with JavaFX included (e.g. Azul Zulu FX, BellSoft Liberica Full JDK),
-  - or provide JavaFX on your module/class path.
+- Java 25
 
 Build and Run
 -------------

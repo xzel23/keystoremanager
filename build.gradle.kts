@@ -283,17 +283,6 @@ tasks.javadoc {
     }
 }
 
-fun JavaExec.useToolchain() {
-    // Use the Gradle toolchain configuration
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(javaRuntimeVersion))
-    })
-}
-
-tasks.withType<JavaExec>().configureEach {
-    useToolchain()
-}
-
 // === verify JavaFX is available
 tasks.register("verifyJavaFxSetup") {
     group = "verification"
