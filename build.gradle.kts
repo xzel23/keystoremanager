@@ -26,6 +26,7 @@ plugins {
     id("signing")
     id("idea")
     id("application")
+    alias(libs.plugins.jdk)
     alias(libs.plugins.jlink)
     alias(libs.plugins.versions)
     alias(libs.plugins.test.logger)
@@ -158,23 +159,6 @@ dependencies {
     testRuntimeOnly(rootProject.libs.junit.jupiter.engine)
 }
 
-tasks.register("printStartMessage") {
-    doFirst {
-        println("NOTE: A JDK with prepackaged JavaFX (i.e., Azul Zulu 'JDK FX' or Bellsoft 'Full JDK') or a properly configured local JavaFX installation is needed!")
-    }
-}
-
-tasks.named("build") {
-    dependsOn(tasks.named("printStartMessage"))
-}
-
-// make sure snapshot versions are not cached
-configurations.all {
-    resolutionStrategy {
-        cacheChangingModulesFor(1, TimeUnit.SECONDS)
-    }
-}
-
 // --- configure all project ----
 project.version = rootProject.libs.versions.projectVersion.get()
 
@@ -204,15 +188,16 @@ apply(plugin = "de.thetaphi.forbiddenapis")
 val javaVersion = JavaVersion.VERSION_25
 val javaRuntimeVersion = "25"
 
+jdk {
+    version.set(javaRuntimeVersion)
+    javaFxBundled.set(true)
+}
+
 java {
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
 
     withSourcesJar()
-
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaRuntimeVersion))
-    }
 }
 
 cabe {
