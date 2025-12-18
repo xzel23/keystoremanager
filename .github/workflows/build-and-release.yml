@@ -23,6 +23,11 @@ jobs:
           - os: windows-latest
             installerType: exe
             artifactSuffix: windows
+            javaArch: x64
+          # Windows ARM: create app-image only (no installer) and zip it
+          - os: windows-2025
+            artifactSuffix: windows-arm
+            javaArch: aarch64
           - os: macos-14
             installerType: dmg
             artifactSuffix: macos-arm
@@ -31,12 +36,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Liberica JDK 25 (with JavaFX)
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: liberica
           java-version: '25'
-          java-package: jdk+fx
+          distribution: 'temurin'
+          architecture: ${{ matrix.javaArch || 'x64' }}
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -103,13 +108,40 @@ jobs:
           echo "GPG_KEY_ID=$GPG_KEY_ID" >> "$GITHUB_ENV"
           echo "GPG_PASSPHRASE=$GPG_PASSPHRASE" >> "$GITHUB_ENV"
 
-      # ---------- Create installer with jpackage (with optional signing args) ----------
+      # ---------- Create artifacts ----------
+      # Default: Create installer with jpackage (with optional signing args)
       - name: Create installer with jpackage
+        if: matrix.artifactSuffix != 'windows-arm'
         env:
           SIGNING_ARGS: ${{ env.SIGNING_ARGS }}
+        shell: bash
         run: |
+          set -euo pipefail
           echo "Using SIGNING_ARGS='${SIGNING_ARGS}'"
           ./gradlew --no-daemon --stacktrace jpackage -PinstallerType=${{ matrix.installerType }} ${SIGNING_ARGS:-}
+
+      # Windows ARM: Build app-image only (no native installer)
+      - name: Create Windows ARM app-image (jpackageImage)
+        if: matrix.artifactSuffix == 'windows-arm'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --stacktrace jpackageImage
+
+      # Windows ARM: Zip the app-image for distribution
+      - name: Zip Windows ARM app-image
+        if: matrix.artifactSuffix == 'windows-arm'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          APP_IMAGE_DIR="build/jpackage/KeystoreManager"
+          if [ -d "$APP_IMAGE_DIR" ]; then
+            (cd build/jpackage && zip -r ../artifacts/KeystoreManager-windows-arm.zip "$(basename "$APP_IMAGE_DIR")")
+          else
+            echo "App image not found at $APP_IMAGE_DIR" >&2
+            exit 1
+          fi
 
       # ---------- Notarize and staple macOS DMG (optional) ----------
       - name: Notarize and staple DMG
@@ -156,11 +188,20 @@ jobs:
           echo "COUNT=$(ls -1 artifacts | wc -l | tr -d ' ')" >> $GITHUB_OUTPUT
 
       - name: Upload installer artifacts
-        if: steps.collect.outputs.COUNT != '0'
+        if: steps.collect.outputs.COUNT != '0' && matrix.artifactSuffix != 'windows-arm'
         uses: actions/upload-artifact@v4
         with:
           name: keystoremanager-installers-${{ matrix.artifactSuffix }}
           path: artifacts/*
+          if-no-files-found: error
+
+      # Upload Windows ARM app-image zip
+      - name: Upload Windows ARM app-image zip
+        if: matrix.artifactSuffix == 'windows-arm'
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystoremanager-app-image-${{ matrix.artifactSuffix }}
+          path: artifacts/*.zip
           if-no-files-found: error
 
   release:
