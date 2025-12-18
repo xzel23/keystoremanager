@@ -56,6 +56,8 @@ application {
 
 // Configure Badass JLink to create a custom runtime image and jpackaged app
 jlink {
+    javaHome = jdk.jdkHome.map { it.asFile.absolutePath }
+
     // Module name is inferred from module-info.java (open module keystoremanager)
     imageName.set("KeystoreManager")
 
@@ -64,7 +66,6 @@ jlink {
         "--strip-debug",
         "--no-header-files",
         "--no-man-pages",
-        "--compress=zip-9",
         // required because some dependencies (e.g., BouncyCastle PKIX) ship as signed modular JARs
         "--ignore-signing-information"
     )
