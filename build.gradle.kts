@@ -56,7 +56,7 @@ application {
 
 // Configure Badass JLink to create a custom runtime image and jpackaged app
 jlink {
-    javaHome = jdk.jdkHome.map { it.asFile.absolutePath }
+    javaHome = jdk.jdkHome
 
     // Module name is inferred from module-info.java (open module keystoremanager)
     imageName.set("KeystoreManager")
@@ -102,8 +102,8 @@ jlink {
         }
         if (iconFile.exists()) {
             // Set icon for the app image and for the installer, when created
-            imageOptions.addAll(listOf("--icon", iconFile.absolutePath))
-            installerOptions.addAll(listOf("--icon", iconFile.absolutePath))
+            imageOptions = listOf("--icon", iconFile.absolutePath)
+            installerOptions = listOf("--icon", iconFile.absolutePath)
         }
 
         // Conditional code signing options supplied via -P properties (CI only)
@@ -129,12 +129,12 @@ jlink {
             val alias = (project.findProperty("win.alias") as String?)?.trim().orEmpty()
             if (ks.isNotEmpty() && ksp.isNotEmpty() && alias.isNotEmpty()) {
                 installerOptions.addAll(listOf(
-                    "--win-sign",
-                    "--win-signing-key-store", ks,
-                    "--win-signing-key-store-pass", ksp,
-                    "--win-signing-key-store-type", "pkcs12",
-                    "--win-signing-key-alias", alias
-                ))
+                        "--win-sign",
+                        "--win-signing-key-store", ks,
+                        "--win-signing-key-store-pass", ksp,
+                        "--win-signing-key-store-type", "pkcs12",
+                        "--win-signing-key-alias", alias
+                    ))
                 val signOpts = (project.findProperty("win.signingOptions") as String?)?.trim()
                 if (!signOpts.isNullOrEmpty()) {
                     // pass additional options to the signtool invocation (e.g. timestamp server)
