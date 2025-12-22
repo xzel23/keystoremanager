@@ -29,7 +29,8 @@ dependencyResolutionManagement {
         create("libs") {
             version("projectVersion", projectVersion)
 
-            plugin("jdk", "com.dua3.gradle.jdkprovider").version("0.1.0")
+            plugin("jdk", "com.dua3.gradle.jdkprovider").version("0.2.0")
+            plugin("graalvm", "org.graalvm.buildtools.native").version("0.11.3")
             plugin("jlink", "org.beryx.jlink").version("3.2.0")
             plugin("versions", "com.github.ben-manes.versions").version("0.53.0")
             plugin("test-logger", "com.adarshr.test-logger").version("4.0.0")

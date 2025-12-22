@@ -27,6 +27,7 @@ plugins {
     id("idea")
     id("application")
     alias(libs.plugins.jdk)
+    alias(libs.plugins.graalvm)
     alias(libs.plugins.jlink)
     alias(libs.plugins.versions)
     alias(libs.plugins.test.logger)
@@ -52,6 +53,19 @@ object Meta {
 
 application {
     mainClass = "com.dua3.app.keystoremanager.Main"
+}
+
+graalvmNative {
+    binaries {
+        all {
+            resources.autodetect()
+            this.javaLauncher = jdk.getJavaLauncher(project)
+        }
+        named("main") {
+            imageName.set("keystoremanager")
+            mainClass.set("com.dua3.app.keystoremanager.Main")
+        }
+    }
 }
 
 // Configure Badass JLink to create a custom runtime image and jpackaged app
@@ -186,18 +200,13 @@ apply(plugin = "com.github.spotbugs")
 apply(plugin = "com.dua3.cabe")
 apply(plugin = "de.thetaphi.forbiddenapis")
 
-val javaVersion = JavaVersion.VERSION_25
-val javaRuntimeVersion = "25"
-
 jdk {
-    version.set(javaRuntimeVersion)
-    javaFxBundled.set(true)
+    version = 25
+    javaFxBundled = true
+    nativeImageCapable = true
 }
 
 java {
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-
     withSourcesJar()
 }
 
