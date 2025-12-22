@@ -27,7 +27,9 @@ open module keystoremanager {
     requires com.dua3.utility.fx;
     requires com.dua3.utility.fx.controls;
     requires com.dua3.utility.logging;
+    requires com.dua3.utility.logging.log4j;
     requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j.core;
     requires java.desktop;
     requires java.logging;
     requires java.prefs;

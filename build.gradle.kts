@@ -167,10 +167,9 @@ dependencies {
     implementation(rootProject.libs.dua3.utility)
     implementation(rootProject.libs.dua3.utility.fx)
     implementation(rootProject.libs.dua3.utility.fx.controls)
+    implementation(rootProject.libs.log4j.core)
     implementation(rootProject.libs.bouncycastle.provider)
     implementation(rootProject.libs.bouncycastle.pkix)
-
-    runtimeOnly(rootProject.libs.log4j.core)
 
     testImplementation(platform(rootProject.libs.junit.bom))
     testImplementation(rootProject.libs.junit.jupiter.api)
@@ -239,7 +238,7 @@ dependencies {
     implementation(rootProject.libs.dua3.utility.logging.log4j)
     implementation(rootProject.libs.dua3.utility.fx)
 
-    runtimeOnly(rootProject.libs.log4j.core)
+    implementation(rootProject.libs.log4j.core)
 
     // JUnit
     testImplementation(platform(rootProject.libs.junit.bom))
