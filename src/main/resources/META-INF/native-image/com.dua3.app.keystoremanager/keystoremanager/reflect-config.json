@@ -98,5 +98,12 @@
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allDeclaredMethods": true
+  },
+  {
+    "name": "com.sun.glass.ui.mac.MacGestureSupport",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allPublicFields": true,
+    "allDeclaredFields": true
   }
 ]
