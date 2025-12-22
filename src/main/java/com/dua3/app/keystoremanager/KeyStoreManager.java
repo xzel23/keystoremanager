@@ -68,9 +68,13 @@ public class KeyStoreManager extends Application {
     private static final Logger LOG = LogManager.getLogger(KeyStoreManager.class);
 
     static {
-        ApplicationUtil.initApplicationPreferences(Preferences.userNodeForPackage(KeyStoreManager.class));
-        ApplicationUtil.addDarkModeListener(KeyStoreManager::setDarkMode);
-        ApplicationUtil.setUiMode(UiMode.SYSTEM_DEFAULT);
+        try {
+            ApplicationUtil.initApplicationPreferences(Preferences.userNodeForPackage(KeyStoreManager.class));
+            ApplicationUtil.addDarkModeListener(KeyStoreManager::setDarkMode);
+            ApplicationUtil.setUiMode(UiMode.SYSTEM_DEFAULT);
+        } catch (Exception | Error e) {
+            LOG.warn("Could not initialize dark mode or preferences", e);
+        }
     }
 
     private final Property<UiMode> uiModeProperty = new SimpleObjectProperty<>(ApplicationUtil.getUiMode());

@@ -79,5 +79,18 @@
         ]
       }
     ]
+  },
+  {
+    "name": "com.dua3.app.keystoremanager.KeyStoreManager",
+    "allPublicConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "atlantafx.base.theme.PrimerDark",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "atlantafx.base.theme.PrimerLight",
+    "allPublicConstructors": true
   }
 ]
