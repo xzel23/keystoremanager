@@ -9,6 +9,9 @@
       },
       {
         "pattern": "com/dua3/app/keystoremanager/logo-.*\\.png"
+      },
+      {
+        "pattern": "com/dua3/utility/fx/.*\\.css"
       }
     ]
   }
