@@ -87,10 +87,16 @@
   },
   {
     "name": "atlantafx.base.theme.PrimerDark",
-    "allPublicConstructors": true
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true
   },
   {
     "name": "atlantafx.base.theme.PrimerLight",
-    "allPublicConstructors": true
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true
   }
 ]

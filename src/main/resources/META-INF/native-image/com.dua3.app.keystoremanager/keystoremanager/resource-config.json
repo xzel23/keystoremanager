@@ -1,0 +1,15 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "atlantafx/base/theme/.*\\.css"
+      },
+      {
+        "pattern": "atlantafx/base/theme/.*\\.bss"
+      },
+      {
+        "pattern": "com/dua3/app/keystoremanager/logo-.*\\.png"
+      }
+    ]
+  }
+}

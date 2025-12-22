@@ -67,16 +67,11 @@ import java.util.prefs.Preferences;
 public class KeyStoreManager extends Application {
     private static final Logger LOG = LogManager.getLogger(KeyStoreManager.class);
 
-    private static final boolean IS_NATIVE_IMAGE = System.getProperty("org.graalvm.nativeimage.imagecode") != null;
 
     static {
-        try {
-            ApplicationUtil.initApplicationPreferences(Preferences.userNodeForPackage(KeyStoreManager.class));
-            ApplicationUtil.addDarkModeListener(KeyStoreManager::setDarkMode);
-            ApplicationUtil.setUiMode(UiMode.SYSTEM_DEFAULT);
-        } catch (Exception | Error e) {
-            LOG.warn("Could not initialize dark mode or preferences", e);
-        }
+        ApplicationUtil.initApplicationPreferences(Preferences.userNodeForPackage(KeyStoreManager.class));
+        ApplicationUtil.addDarkModeListener(KeyStoreManager::setDarkMode);
+        ApplicationUtil.setUiMode(UiMode.SYSTEM_DEFAULT);
     }
 
     private final Property<UiMode> uiModeProperty = new SimpleObjectProperty<>(ApplicationUtil.getUiMode());
@@ -86,11 +81,7 @@ public class KeyStoreManager extends Application {
     }
 
     private static void setUiMode(UiMode mode) {
-        try {
-            ApplicationUtil.setUiMode(mode);
-        } catch (Exception | Error e) {
-            LOG.warn("Could not set UI mode: {}", mode, e);
-        }
+        ApplicationUtil.setUiMode(mode);
     }
 
     private final TabPane tabPane = new TabPane();
@@ -127,10 +118,7 @@ public class KeyStoreManager extends Application {
         // Create a simple menu bar with a single 'File' menu (no items for now)
         MenuBar menuBar = new MenuBar(
                 new Menu("View", null,
-                        Controls.choiceMenu("Appearance", uiModeProperty,
-                                IS_NATIVE_IMAGE
-                                        ? List.of(UiMode.LIGHT, UiMode.DARK)
-                                        : List.of(UiMode.values()))
+                        Controls.choiceMenu("Appearance", uiModeProperty, List.of(UiMode.values()))
                 ),
                 new Menu("Tools", null,
                         Controls.menuItem("Validate PEM…", this::verifyPem)

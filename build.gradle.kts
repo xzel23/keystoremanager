@@ -64,6 +64,7 @@ graalvmNative {
         named("main") {
             imageName.set("keystoremanager")
             mainClass.set("com.dua3.app.keystoremanager.Main")
+            buildArgs.add("--enable-native-access=ALL-UNNAMED")
         }
     }
 }
@@ -377,3 +378,4 @@ tasks.withType<DependencyUpdatesTask> {
         gradle.startParameter.isParallelProjectExecutionEnabled = false
     }
 }
+tasks.register("printClasspath") { doLast { println(sourceSets.main.get().runtimeClasspath.asPath) } }
