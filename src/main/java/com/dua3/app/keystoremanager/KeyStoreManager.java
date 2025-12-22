@@ -67,6 +67,8 @@ import java.util.prefs.Preferences;
 public class KeyStoreManager extends Application {
     private static final Logger LOG = LogManager.getLogger(KeyStoreManager.class);
 
+    private static final boolean IS_NATIVE_IMAGE = System.getProperty("org.graalvm.nativeimage.imagecode") != null;
+
     static {
         try {
             ApplicationUtil.initApplicationPreferences(Preferences.userNodeForPackage(KeyStoreManager.class));
@@ -80,7 +82,15 @@ public class KeyStoreManager extends Application {
     private final Property<UiMode> uiModeProperty = new SimpleObjectProperty<>(ApplicationUtil.getUiMode());
 
     public KeyStoreManager() {
-        FxUtil.bindBidirectional(uiModeProperty, ApplicationUtil::getUiMode, ApplicationUtil::setUiMode, ApplicationUtil::addUiModeListener);
+        FxUtil.bindBidirectional(uiModeProperty, ApplicationUtil::getUiMode, KeyStoreManager::setUiMode, ApplicationUtil::addUiModeListener);
+    }
+
+    private static void setUiMode(UiMode mode) {
+        try {
+            ApplicationUtil.setUiMode(mode);
+        } catch (Exception | Error e) {
+            LOG.warn("Could not set UI mode: {}", mode, e);
+        }
     }
 
     private final TabPane tabPane = new TabPane();
@@ -117,7 +127,10 @@ public class KeyStoreManager extends Application {
         // Create a simple menu bar with a single 'File' menu (no items for now)
         MenuBar menuBar = new MenuBar(
                 new Menu("View", null,
-                        Controls.choiceMenu("Appearance", uiModeProperty, List.of(UiMode.values()))
+                        Controls.choiceMenu("Appearance", uiModeProperty,
+                                IS_NATIVE_IMAGE
+                                        ? List.of(UiMode.LIGHT, UiMode.DARK)
+                                        : List.of(UiMode.values()))
                 ),
                 new Menu("Tools", null,
                         Controls.menuItem("Validate PEM…", this::verifyPem)
