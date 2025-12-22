@@ -380,4 +380,3 @@ tasks.withType<DependencyUpdatesTask> {
         gradle.startParameter.isParallelProjectExecutionEnabled = false
     }
 }
-tasks.register("printClasspath") { doLast { println(sourceSets.main.get().runtimeClasspath.asPath) } }
