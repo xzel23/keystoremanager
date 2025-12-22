@@ -105,5 +105,10 @@
     "allDeclaredMethods": true,
     "allPublicFields": true,
     "allDeclaredFields": true
+  },
+  {
+    "name": "com.dua3.utility.application.imp.DarkModeDetectorMacOs",
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
   }
 ]
