@@ -67,7 +67,6 @@ import java.util.prefs.Preferences;
 public class KeyStoreManager extends Application {
     private static final Logger LOG = LogManager.getLogger(KeyStoreManager.class);
 
-
     static {
         ApplicationUtil.initApplicationPreferences(Preferences.userNodeForPackage(KeyStoreManager.class));
         ApplicationUtil.addDarkModeListener(KeyStoreManager::setDarkMode);
@@ -84,8 +83,6 @@ public class KeyStoreManager extends Application {
         ApplicationUtil.setUiMode(mode);
     }
 
-    private final TabPane tabPane = new TabPane();
-
     private static void setDarkMode(boolean enabled) {
         LOG.info("Setting dark mode to {}", enabled ? "enabled" : "disabled");
         Supplier<Theme> themeSupplier = enabled ? PrimerDark::new : PrimerLight::new;
@@ -94,6 +91,8 @@ public class KeyStoreManager extends Application {
             LOG.debug("theme set to {}", enabled ? "dark" : "light");
         });
     }
+
+    private final TabPane tabPane = new TabPane();
 
     @Override
     public void start(Stage primaryStage) {
