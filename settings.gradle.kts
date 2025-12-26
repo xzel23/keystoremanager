@@ -19,7 +19,7 @@ rootProject.name = "keystoremanager"
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (c) 2025 Axel Howind (axel@dua3.com)
 
-val projectVersion = "0.1.0"
+val projectVersion = "0.1.0-SNAPSHOT"
 
 dependencyResolutionManagement {
 
@@ -29,21 +29,21 @@ dependencyResolutionManagement {
         create("libs") {
             version("projectVersion", projectVersion)
 
-            plugin("jdk", "com.dua3.gradle.jdkprovider").version("0.3.0")
+            plugin("jdk", "com.dua3.gradle.jdkprovider").version("0.4.0-beta4")
             plugin("graalvm", "org.graalvm.buildtools.native").version("0.11.3")
             plugin("jlink", "org.beryx.jlink").version("3.2.0")
             plugin("versions", "com.github.ben-manes.versions").version("0.53.0")
             plugin("test-logger", "com.adarshr.test-logger").version("4.0.0")
-            plugin("spotbugs", "com.github.spotbugs").version("6.4.7")
+            plugin("spotbugs", "com.github.spotbugs").version("6.4.8")
             plugin("cabe", "com.dua3.cabe").version("3.3.0")
             plugin("forbiddenapis", "de.thetaphi.forbiddenapis").version("3.10")
 
             version("bouncycastle", "1.83")
-            version("dua3-utility", "20.1.0")
+            version("dua3-utility", "20.3.0-beta")
             version("ikonli", "12.4.0")
             version("jspecify", "1.0.0")
             version("junit-bom", "6.0.1")
-            version("log4j-bom", "2.25.2")
+            version("log4j-bom", "2.25.3")
             version("atlantafx", "2.1.0")
             version("spotbugs", "4.9.8")
 
@@ -82,6 +82,7 @@ dependencyResolutionManagement {
 
         // Maven Central Repository
         mavenCentral()
+        mavenLocal()
 
         if (isReleaseCandidate) {
             println("release candidate version detected, adding Maven staging repositories")
