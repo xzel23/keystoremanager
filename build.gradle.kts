@@ -313,6 +313,7 @@ tasks.register("verifyJavaFxSetup") {
 
 tasks.withType<JavaExec> {
     dependsOn("verifyJavaFxSetup")
+    outputs.upToDateWhen { false }
 }
 
 // === TESTDATA DOWNLOAD ===
