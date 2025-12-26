@@ -29,6 +29,7 @@ import com.dua3.utility.fx.PlatformHelper;
 import com.dua3.utility.fx.controls.Controls;
 import com.dua3.utility.fx.controls.Dialogs;
 import com.dua3.utility.lang.LangUtil;
+import com.dua3.utility.lang.Platform;
 import com.dua3.utility.math.MathUtil;
 import javafx.application.Application;
 import javafx.beans.property.Property;
@@ -123,7 +124,10 @@ public class KeyStoreManager extends Application {
                         Controls.menuItem("Validate PEM…", this::verifyPem)
                 )
         );
-        menuBar.setUseSystemMenuBar(true);
+        if (Platform.isMacOS()) {
+            menuBar.setUseSystemMenuBar(true);
+            menuBar.setManaged(false);
+        }
 
         // Use a BorderPane so the MenuBar can sit at the top and the TabPane in the center
         BorderPane root = new BorderPane();

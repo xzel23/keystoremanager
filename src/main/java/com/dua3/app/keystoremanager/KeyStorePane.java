@@ -357,7 +357,7 @@ public class KeyStorePane extends Pane {
         name.setValue(EMPTY_NAME);
         ImageView logo = new ImageView(LOGO.fxImage());
 
-        double buttonWidth = logo.getFitWidth() * 0.45;
+        double buttonWidth = logo.getImage().getWidth() * 0.48;
         HBox buttons = new HBox(
                 Controls.button()
                         .text("Create Keystore")
